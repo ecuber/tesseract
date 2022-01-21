@@ -1,13 +1,11 @@
 /* eslint-disable prefer-const */
 // p5.js needs access to actual variables rather than state
-import { projectionType } from '../types'
 import Sketch from 'react-p5'
 import p5Types from 'p5'
 import { multiply } from 'mathjs'
 import { transform, createPoint, createRotation, composeMatrices, Point3D } from './mathutils'
 
 interface PropTypes {
-  style: projectionType
   width: number
   height: number
 }
@@ -41,7 +39,7 @@ const drawEdge = (p5: p5Types, p1: r2pt, p2: r2pt): void => {
   p5.line(p1[0], p1[1], p2[0], p2[1])
 }
 
-const Canvas = ({ width, height, style }: PropTypes): JSX.Element => {
+const Canvas = ({ width, height }: PropTypes): JSX.Element => {
   const setup = (p5: p5Types, canvasParentRef: Element): void => {
     p5.createCanvas(width, height).parent(canvasParentRef)
   }
