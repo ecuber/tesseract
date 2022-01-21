@@ -22,8 +22,6 @@ for (let i = 0; i < 8; i++) {
   vertices.push(createPoint(x, y, z))
 }
 
-// console.log(vertices)
-
 type r2pt = [number, number]
 
 const drawEdge = (p5: p5Types, p1: r2pt, p2: r2pt): void => {
@@ -38,12 +36,16 @@ const Canvas = ({ width, height }: PropTypes): JSX.Element => {
     p5.createCanvas(width, height).parent(canvasParentRef)
   }
 
+  const windowResized = (p5: p5Types): void => {
+    p5.resizeCanvas(width, height)
+  }
+
   const draw = (p5: p5Types): void => {
     // translate coordinate system—origin in center
     p5.translate(width / 2, height / 2)
     p5.scale(1, -1)
 
-    p5.background('lightgray')
+    p5.background('#dddddd')
 
     const pts: r2pt[] = []
 
@@ -102,7 +104,7 @@ const Canvas = ({ width, height }: PropTypes): JSX.Element => {
     rotation += 0.02
   }
 
-  return <Sketch setup={setup} draw={draw}/>
+  return <Sketch windowResized={windowResized} setup={setup} draw={draw}/>
 }
 
 export default Canvas
