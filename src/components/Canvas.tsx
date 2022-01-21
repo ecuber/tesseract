@@ -12,23 +12,16 @@ interface PropTypes {
 
 let rotation = 0
 
-const vertices: Point3D[] = [
-  createPoint(0.5, 0.5, 0.5),
-  createPoint(-0.5, 0.5, 0.5),
-  createPoint(-0.5, -0.5, 0.5),
-  createPoint(0.5, -0.5, 0.5),
-  createPoint(0.5, 0.5, -0.5),
-  createPoint(-0.5, 0.5, -0.5),
-  createPoint(-0.5, -0.5, -0.5),
-  createPoint(0.5, -0.5, -0.5)
-]
+const vertices: Point3D[] = []
 
-// for (let i = 0; i < 8; i++) {
-//   const x = (i + 1) % 2 !== 0 || (i + 2) % 2 !== 0 ? 0.5 : -0.5
-//   const y = (i + 1) % 3 !== 0 || (i + 2) % 4 !== 0 ? 0.5 : -0.5
-//   const z = i < 3 ? 0.5 : -0.5
-//   vertices.push(createPoint(x, y, z))
-// }
+for (let i = 0; i < 8; i++) {
+  const pattern = [0.5, 0.5, -0.5, -0.5]
+  const x = pattern[(i + 1) % 4]
+  const y = pattern[i % 4]
+  const z = i < 4 ? 0.5 : -0.5
+  vertices.push(createPoint(x, y, z))
+}
+
 // console.log(vertices)
 
 type r2pt = [number, number]
@@ -58,8 +51,7 @@ const Canvas = ({ width, height }: PropTypes): JSX.Element => {
     const points: r2pt[] = []
 
     vertices.forEach(({ x, y, z, mat }, index) => {
-      const rotMatrix = createRotation(0.5 * rotation, rotation, rotation)
-      // const rotMatrix = createRotation(Math.PI / 8, Math.PI / 4, Math.PI / 8)
+      const rotMatrix = createRotation(rotation, rotation, rotation)
       const rotated = composeMatrices([rotMatrix, mat])
       const projected = composeMatrices([transform.persp(2, rotated.get([2, 0])), rotated])
       const coords: r2pt = multiply([projected.get([0, 0]), projected.get([1, 0])], 300)
