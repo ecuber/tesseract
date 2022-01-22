@@ -44,7 +44,7 @@ const SliderContainer = styled.div`
 
 const App = (): JSX.Element => {
   const { pathname } = useLocation()
-  const [fourD, setFourD] = useState(pathname === '/4d')
+  const [fourD, setFourD] = useState(['/', '/4d'].includes(pathname))
   const [speed, setSpeed] = useState(50)
   const [width, height] = useDimensions()
   const primary = '#434a91'
