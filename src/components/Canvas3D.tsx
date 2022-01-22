@@ -3,11 +3,18 @@
 import Sketch from 'react-p5'
 import p5Types from 'p5'
 import { multiply } from 'mathjs'
-import { transform, createPoint, createRotation, composeMatrices, Point3D } from './mathutils'
+import {
+  transform3d,
+  createPoint3D,
+  createRotation3D,
+  composeMatrices,
+  Point3D
+} from './mathutils'
 
 interface PropTypes {
   width: number
   height: number
+  speed: number
 }
 
 let rotation = 0
@@ -19,7 +26,7 @@ for (let i = 0; i < 8; i++) {
   const x = pattern[(i + 1) % 4]
   const y = pattern[i % 4]
   const z = i < 4 ? 0.5 : -0.5
-  vertices.push(createPoint(x, y, z))
+  vertices.push(createPoint3D(x, y, z))
 }
 
 type r2pt = [number, number]
@@ -31,7 +38,7 @@ const drawEdge = (p5: p5Types, p1: r2pt, p2: r2pt): void => {
   p5.line(...p1, ...p2)
 }
 
-const Canvas = ({ width, height }: PropTypes): JSX.Element => {
+const Canvas = ({ width, height, speed }: PropTypes): JSX.Element => {
   const setup = (p5: p5Types, canvasParentRef: Element): void => {
     p5.createCanvas(width, height).parent(canvasParentRef)
   }
@@ -45,14 +52,14 @@ const Canvas = ({ width, height }: PropTypes): JSX.Element => {
     p5.translate(width / 2, height / 2)
     p5.scale(1, -1)
 
-    p5.background('#dddddd')
+    p5.background('#ebebeb')
 
     const pts: r2pt[] = []
 
     vertices.forEach(({ x, y, z, mat }, index) => {
-      const rotMatrix = createRotation(rotation, rotation, rotation)
+      const rotMatrix = createRotation3D(rotation, rotation, rotation)
       const rotated = composeMatrices([rotMatrix, mat])
-      const projected = composeMatrices([transform.persp(2, rotated.get([2, 0])), rotated])
+      const projected = composeMatrices([transform3d.persp(2, rotated.get([2, 0])), rotated])
       const coords: r2pt = multiply([projected.get([0, 0]), projected.get([1, 0])], 300)
       pts.push(coords)
 
@@ -101,7 +108,7 @@ const Canvas = ({ width, height }: PropTypes): JSX.Element => {
       drawEdge(p5, pts[i], pts[i + 4])
     }
 
-    rotation += 0.02
+    rotation += 0.04 * speed
   }
 
   return <Sketch windowResized={windowResized} setup={setup} draw={draw}/>
