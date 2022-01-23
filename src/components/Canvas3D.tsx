@@ -10,12 +10,16 @@ import {
   composeMatrices,
   Point3D
 } from './mathutils'
+import { axes, aName } from '../App'
 
 interface PropTypes {
   width: number
   height: number
   speed: number
+  selectedAxes: aName[]
 }
+
+type rotationSet = [number, number, number]
 
 let rotation = 0
 
@@ -38,7 +42,7 @@ const drawEdge = (p5: p5Types, p1: r2pt, p2: r2pt): void => {
   p5.line(...p1, ...p2)
 }
 
-const Canvas = ({ width, height, speed }: PropTypes): JSX.Element => {
+const Canvas = ({ width, height, speed, selectedAxes }: PropTypes): JSX.Element => {
   const setup = (p5: p5Types, canvasParentRef: Element): void => {
     p5.createCanvas(width, height).parent(canvasParentRef)
   }
@@ -57,7 +61,9 @@ const Canvas = ({ width, height, speed }: PropTypes): JSX.Element => {
     const pts: r2pt[] = []
 
     vertices.forEach(({ x, y, z, mat }, index) => {
-      const rotMatrix = createRotation3D(rotation, rotation, rotation)
+      const toggles = axes.map(axis => selectedAxes.includes(axis) ? 1 : 0) as rotationSet
+      const rotAngles: rotationSet = multiply(toggles, rotation)
+      const rotMatrix = createRotation3D(...rotAngles)
       const rotated = composeMatrices([rotMatrix, mat])
       const projected = composeMatrices([transform3d.persp(2, rotated.get([2, 0])), rotated])
       const coords: r2pt = multiply([projected.get([0, 0]), projected.get([1, 0])], 300)

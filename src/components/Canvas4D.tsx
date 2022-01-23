@@ -3,6 +3,7 @@
 import Sketch from 'react-p5'
 import p5Types from 'p5'
 import { chain, multiply } from 'mathjs'
+import { pName, planes } from '../App'
 import {
   transform3d,
   createPoint4D,
@@ -16,7 +17,10 @@ interface PropTypes {
   width: number
   height: number
   speed: number
+  selectedPlanes: pName[]
 }
+
+type rotationSet = [number, number, number, number, number, number]
 
 let rotation = 0
 
@@ -37,18 +41,18 @@ for (let i = 0; i < 16; i++) {
 type r2pt = [number, number]
 
 const colors = [
-  'rgba(255, 74, 74, 0.35)',
-  'rgba(255, 191, 72, 0.4)',
-  'rgba(255, 251, 31, 0.4)',
-  'rgba(66, 255, 66, 0.4)',
-  'rgba(58, 225, 255, 0.4)',
-  'rgba(199, 0, 199, 0.4)',
-  'rgba(199, 71, 199, 0.4)',
-  'rgba(110, 230, 252, 0.4)',
-  'rgba(121, 248, 121, 0.4)',
-  'rgba(252, 250, 105, 0.4)',
-  'rgba(250, 203, 116, 0.4)',
-  'rgba(250, 111, 111, 0.35)'
+  'rgba(255, 74, 74, 0.45)',
+  'rgba(250, 111, 111, 0.45)',
+  'rgba(255, 243, 79, 0.45)',
+  'rgba(73, 248, 73, 0.45)',
+  'rgba(58, 225, 255, 0.45)',
+  'rgba(199, 0, 199, 0.45)',
+  'rgba(199, 71, 199, 0.45)',
+  'rgba(110, 230, 252, 0.45)',
+  'rgba(89, 255, 89, 0.45)',
+  'rgba(252, 250, 105, 0.45)',
+  'rgba(250, 203, 116, 0.45)',
+  'rgba(250, 111, 111, 0.45)'
 ]
 
 const drawEdge = (p5: p5Types, p1: r2pt, p2: r2pt): void => {
@@ -57,7 +61,7 @@ const drawEdge = (p5: p5Types, p1: r2pt, p2: r2pt): void => {
   p5.line(...p1, ...p2)
 }
 
-const Canvas = ({ width, height, speed }: PropTypes): JSX.Element => {
+const Canvas = ({ width, height, speed, selectedPlanes }: PropTypes): JSX.Element => {
   const setup = (p5: p5Types, canvasParentRef: Element): void => {
     p5.createCanvas(width, height).parent(canvasParentRef)
   }
@@ -68,7 +72,7 @@ const Canvas = ({ width, height, speed }: PropTypes): JSX.Element => {
 
   const draw = (p5: p5Types): void => {
     // translate coordinate system—origin in center
-    p5.translate(width / 2, height / 2)
+    p5.translate(width / 2, height / 2 + 0.08 * height)
     p5.scale(1, -1)
 
     p5.background('#ebebeb')
@@ -76,7 +80,10 @@ const Canvas = ({ width, height, speed }: PropTypes): JSX.Element => {
     const pts: r2pt[] = []
 
     vertices.forEach(({ x, y, z, mat }, index) => {
-      const rotMatrix = createRotation4D(0, 0, rotation, rotation, 0, 0)
+      const toggles = planes.map(plane => selectedPlanes.includes(plane) ? 1 : 0) as rotationSet
+      const rotAngles: rotationSet = multiply(toggles, rotation)
+      // console.log(rotAngles)
+      const rotMatrix = createRotation4D(...rotAngles)
       const rotated = composeMatrices([rotMatrix, mat])
       const projectedTo3D = composeMatrices([transform4d.persp(1.2, rotated.get([3, 0])), rotated])
       const projectedTo2D = composeMatrices([transform3d.persp(2, projectedTo3D.get([2, 0])), projectedTo3D])
@@ -89,7 +96,6 @@ const Canvas = ({ width, height, speed }: PropTypes): JSX.Element => {
       p5.point(...coords)
     })
 
-    // TODO: procedurally generate the face combinations
     const cubePoints = [
       [0, 1, 2, 3],
       [1, 2, 6, 5],
@@ -99,13 +105,22 @@ const Canvas = ({ width, height, speed }: PropTypes): JSX.Element => {
       [4, 5, 6, 7]
     ]
 
-    const faces = (offset: number): r2pt[][] => chain(cubePoints).add(offset).mod(pts.length).done().map((indexes: number[]) => indexes.map(i => pts[i]))
+    const faces = (offset: number): r2pt[][] => chain(cubePoints)
+      .add(offset)
+      .mod(pts.length)
+      .done()
+      .map((indexes: number[]) => indexes.map(i => pts[i]))
 
     p5.noStroke() // double lines make things messy
     const toDraw = [faces(0), faces(8)]
 
-    for (let i = 0; i < 7; i++) {
-      toDraw.push([[i + 8, i + 9, i + 1, i].map(i => pts[i])])
+    for (let i = 0; i < 4; i++) {
+      // connects "horizontals" (bottom)
+      toDraw.push([[i % 4, (i + 1) % 4, (i + 1) % 4 + 8, i % 4 + 8].map(i => pts[i])])
+      // connects "horizontals" (top)
+      toDraw.push([[i % 4 + 4, (i + 1) % 4 + 4, (i + 1) % 4 + 12, i % 4 + 12].map(i => pts[i])])
+      // connects "verticals"
+      toDraw.push([[i % 4, (i + 1) % 4 + 3, (i + 1) % 4 + 11, i % 4 + 8].map(i => pts[i])])
     }
 
     const fillFace = (face: r2pt[], color: string): void => {
