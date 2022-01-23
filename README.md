@@ -8,15 +8,15 @@ A [tesseract](https://en.wikipedia.org/wiki/Tesseract) is essentially a 4D cube;
 
 ![demo gif](./demo/tesseractdemo.gif)
 
-The graphics were created all with [p5.js](https://p5js.org/). I did not use this library's built-in WebGL 3D renderer—rather, everything you see is represented by 2D shapes, the positions and scales of which I calculated manually (for whatever reason, doing something like this has been on my bucket list for a while).
+The graphics were created with [p5.js](https://p5js.org/). I did not use the library's built-in WebGL 3D renderer. Rather, everything you see is represented by 2D shapes, the positions and scales of which I calculated manually (for whatever reason, doing something like this has been on my bucket list).
 
 ## Website
 The site is live at [https://tesseract22.netlify.app](https://tesseract22.netlify.app)! Feel free to visit and try it out.
 
 ### Parameters
-* **Speed** - Drag the slider to control the speed at which the rotations are happening.
+* **Speed** - Drag the slider to control the rate at which the rotations are occurring.
 * **Rotation Axes (3D cube only)** - Enable or disable axes about which to rotate the cube.
-* **Rotation Planes (4D tesseract only)** - In 4D, we can't really rotate about a singular axis. Instead, we rotate about a *plane*. Each rotation is represented by a 4x4 matrix. By checking a box, you add a rotation matrix to a list of matrices to be composed—the resulting matrix is applied to all the points of the tesseract *prior* to projection.
+* **Rotation Planes (4D tesseract only)** - In 4D, we can't really rotate about a singular axis. Instead, we rotate about a *plane*. Each rotation is represented by a 4x4 matrix. By checking a box, you add a rotation matrix to a list of matrices to be composed—the resulting matrix product is applied to all the points of the tesseract *prior* to projection.
 
 ## Tech Stack
 As mentioned, the animation itself is rendered with [p5.js](https://p5js.org/). The website was programmed with [Create React App](https://create-react-app.dev/) and [TypeScript](https://www.typescriptlang.org/). For CSS, I used [Emotion in the styled flavor](https://emotion.sh/docs/styled).
