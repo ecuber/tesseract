@@ -8,7 +8,7 @@ const CenVert = styled.div<PropTypes>`
   display: flex;
   flex: ${props => props.flex ?? ''};
   flex-direction: column;
-  align-items: center;
+  /* align-items: center; */
   justify-content: center;
 `
 
